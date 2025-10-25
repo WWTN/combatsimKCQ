@@ -430,6 +430,11 @@ padding: 0.75rem;
             white-space: pre-line;
 line-height: 1.5;
 }
+
+        .result-content span[title] {
+            text-decoration: underline dotted;
+            cursor: help;
+        }
     </style>
 </head>
 <body>
@@ -787,7 +792,7 @@ if (attackerAccRollCount > 1) {
                     ).join(', ');
 accuracyRollStr = `${attackerAccRollCount}x 1d${attackerDiceValue} ([${formattedRolls}])`;
                 } else {
-                    accuracyRollStr = `1d${attackerDiceValue}`;
+                    accuracyRollStr = `<span title="Rolled: ${accuracyRoll}">1d${attackerDiceValue}</span>`;
 }
                 if (accuracyNatMax) {
                     accuracyRollStr += ' <b>nat max!</b>';
@@ -857,7 +862,7 @@ if (defenderLckRollCount > 1) {
                         ).join(', ');
 defenderLckRollStr = `${defenderLckRollCount}x 1d${defenderStats.LCK} ([${formattedRolls}])`;
                     } else {
-                        defenderLckRollStr = `1d${defenderStats.LCK}`;
+                        defenderLckRollStr = `<span title="Rolled: ${defenderLckRoll}">1d${defenderStats.LCK}</span>`;
 }
                     
                     const baseEva = (defenderStats.EVA + defenderEvaBonusTotal + defenderLckRoll) * defenderEvaMultiplier;
@@ -1132,7 +1137,7 @@ if (attackerFpRollCount > 1) {
                     ).join(', ');
 attackerRollStr = `${attackerFpRollCount}x 1d${attackerDiceValue} ([${formattedRolls}])`;
                 } else {
-                    attackerRollStr = `1d${attackerDiceValue}`;
+                    attackerRollStr = `<span title="Rolled: ${attackerRolls.selectedRoll}">1d${attackerDiceValue}</span>`;
 }
                 if (firepowerNatMax) {
                     attackerRollStr += ' <b>nat max!</b>';
@@ -1145,7 +1150,7 @@ if (defenderArmRollCount > 1) {
                     ).join(', ');
 defenderRollStr = `${defenderArmRollCount}x 1d${defenderDiceValue} ([${formattedRolls}])`;
                 } else {
-                    defenderRollStr = `1d${defenderDiceValue}`;
+                    defenderRollStr = `<span title="Rolled: ${defenderRolls.selectedRoll}">1d${defenderDiceValue}</span>`;
 }
                 if (armourNatMax) {
                     defenderRollStr += ' <b>nat max!</b>';
