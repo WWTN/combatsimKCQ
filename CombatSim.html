@@ -782,12 +782,12 @@ const accuracyRoll = accuracyRolls.selectedRoll;
                 
                 let accuracyRollStr;
 if (attackerAccRollCount > 1) {
-                    const formattedRolls = accuracyRolls.rolls.map(r => 
+                    const formattedRolls = accuracyRolls.rolls.map(r =>
                         r === accuracyRolls.selectedRoll ? `<b>${r}</b>` : r
                     ).join(', ');
 accuracyRollStr = `${attackerAccRollCount}x 1d${attackerDiceValue} ([${formattedRolls}])`;
                 } else {
-                    accuracyRollStr = `1d${attackerDiceValue} = ${accuracyRoll}`;
+                    accuracyRollStr = `1d${attackerDiceValue}`;
 }
                 if (accuracyNatMax) {
                     accuracyRollStr += ' <b>nat max!</b>';
@@ -852,12 +852,12 @@ const baseEva = (defenderStats.EVA + defenderEvaBonusTotal) * defenderEvaMultipl
                     const defenderLckRolls = this.rollMultiple(defenderStats.LCK, defenderLckRollCount, defenderLckRollType);
 defenderLckRoll = defenderLckRolls.selectedRoll;
 if (defenderLckRollCount > 1) {
-                        const formattedRolls = defenderLckRolls.rolls.map(r => 
+                        const formattedRolls = defenderLckRolls.rolls.map(r =>
                         r === defenderLckRolls.selectedRoll ? `<b>${r}</b>` : r
                         ).join(', ');
-defenderLckRollStr = `${defenderLckRollCount}x 1d${defenderStats.LCK} = [${formattedRolls}]`;
+defenderLckRollStr = `${defenderLckRollCount}x 1d${defenderStats.LCK} ([${formattedRolls}])`;
                     } else {
-                        defenderLckRollStr = `1d${defenderStats.LCK} = ${defenderLckRoll}`;
+                        defenderLckRollStr = `1d${defenderStats.LCK}`;
 }
                     
                     const baseEva = (defenderStats.EVA + defenderEvaBonusTotal + defenderLckRoll) * defenderEvaMultiplier;
@@ -1127,28 +1127,28 @@ const baseDefenderTotal = defenderRolls.selectedRoll + defenderStats.ARM + defen
 // Build Roll Strings
                 let attackerRollStr;
 if (attackerFpRollCount > 1) {
-                    const formattedRolls = attackerRolls.rolls.map(r => 
+                    const formattedRolls = attackerRolls.rolls.map(r =>
                         r === attackerRolls.selectedRoll ? `<b>${r}</b>` : r
                     ).join(', ');
-attackerRollStr = `${attackerFpRollCount}x (1d${attackerDiceValue} = [${formattedRolls}])`;
+attackerRollStr = `${attackerFpRollCount}x 1d${attackerDiceValue} ([${formattedRolls}])`;
                 } else {
-                    attackerRollStr = `1d${attackerDiceValue} = ${attackerRolls.selectedRoll}`;
+                    attackerRollStr = `1d${attackerDiceValue}`;
 }
                 if (firepowerNatMax) {
-                    attackerRollStr += ', <b>nat max!</b>';
+                    attackerRollStr += ' <b>nat max!</b>';
 }
-                
+
                 let defenderRollStr;
 if (defenderArmRollCount > 1) {
-                    const formattedRolls = defenderRolls.rolls.map(r => 
+                    const formattedRolls = defenderRolls.rolls.map(r =>
                         r === defenderRolls.selectedRoll ? `<b>${r}</b>` : r
                     ).join(', ');
-defenderRollStr = `${defenderArmRollCount}x (1d${defenderDiceValue} = [${formattedRolls}])`;
+defenderRollStr = `${defenderArmRollCount}x 1d${defenderDiceValue} ([${formattedRolls}])`;
                 } else {
-                    defenderRollStr = `1d${defenderDiceValue} = ${defenderRolls.selectedRoll}`;
+                    defenderRollStr = `1d${defenderDiceValue}`;
 }
                 if (armourNatMax) {
-                    defenderRollStr += ', <b>nat max!</b>';
+                    defenderRollStr += ' <b>nat max!</b>';
 }
 
                 // Apply Crit, Historical, and Multi-Bomber multipliers
