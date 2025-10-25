@@ -561,6 +561,19 @@ onchange="updateAttackerCustomDice()">
 <label for="smitingSoul">Smiting Soul</label>
                 </div>
 
+                <div class="checkbox-row">
+<input type="checkbox" id="antiArmour" onchange="updateAntiArmour()">
+<label for="antiArmour">Anti-Armour</label>
+                </div>
+
+                <div id="antiArmourSection" style="display: none; margin-top: 0.5rem;">
+                    <select id="antiArmourMode">
+<option value="Roll">Roll</option>
+<option value="Static">Static</option>
+<option value="Full">Full</option>
+                    </select>
+                </div>
+
       
           <div class="section-divider"></div>
 
@@ -747,13 +760,13 @@ return { rolls, selectedRoll, isNatMax };
             calculateAttack(config) {
                 const {
                     attackerStats, defenderStats, attackerMorale, defenderMorale,
-                    attackMode, aswClassModifier, 
-multiBomber, historicalBonus, smitingSoul,
+                    attackMode, aswClassModifier,
+multiBomber, historicalBonus, smitingSoul, antiArmour, antiArmourMode,
                     attackerDiceValue, defenderDiceValue,
                     attackerAccRollCount, attackerAccRollType, attackerAccBonuses,
                     attackerFpRollCount, attackerFpRollType, attackerFpBonuses,
                     defenderLckRollCount, defenderLckRollType, defenderEvaBonuses,
-           
+
          defenderArmRollCount, defenderArmRollType, defenderArmBonuses
                 } = config;
 if (!attackerStats || !defenderStats) {
@@ -1117,18 +1130,46 @@ defenderArmBonuses.forEach(bonus => {
                     if (bonus.name && bonus.value !== 0) {
                         if (bonus.isMultiplier) {
                             defenderArmMultiplier *= bonus.value;
-        
+
                     defenderBonusStr += ` × ${bonus.value} (${bonus.name})`;
                         } else {
                             defenderBonusTotal += bonus.value;
-                   
+
          const sign = bonus.value >= 0 ? '+' : '';
 defenderBonusStr += ` ${sign}${bonus.value} (${bonus.name})`;
                         }
                     }
                 });
-const baseDefenderTotal = defenderRolls.selectedRoll + defenderStats.ARM + defenderBonusTotal;
-                const defenderTotal = Math.floor(baseDefenderTotal * defenderArmMultiplier);
+
+                // Apply Anti-Armour modifications
+                let baseDefenderTotal, defenderTotal;
+                let antiArmourPenalty = 0;
+                let antiArmourStr = '';
+
+                if (antiArmour && antiArmourMode === 'Roll') {
+                    // Roll mode: reduce defender's dice value by attacker's roll result (min 0)
+                    const modifiedDiceValue = Math.max(0, defenderDiceValue - attackerRolls.selectedRoll);
+                    const modifiedRoll = modifiedDiceValue > 0 ? this.rollDice(modifiedDiceValue) : 0;
+                    antiArmourPenalty = attackerRolls.selectedRoll;
+                    baseDefenderTotal = modifiedRoll + defenderStats.ARM + defenderBonusTotal;
+                    defenderTotal = Math.floor(baseDefenderTotal * defenderArmMultiplier);
+                } else if (antiArmour && antiArmourMode === 'Static') {
+                    // Static mode: reduce ARM + bonuses by attacker's dice value (min 0)
+                    const modifiedArmBase = Math.max(0, defenderStats.ARM + defenderBonusTotal - attackerDiceValue);
+                    antiArmourPenalty = attackerDiceValue;
+                    baseDefenderTotal = defenderRolls.selectedRoll + modifiedArmBase;
+                    defenderTotal = Math.floor(baseDefenderTotal * defenderArmMultiplier);
+                } else if (antiArmour && antiArmourMode === 'Full') {
+                    // Full mode: subtract attacker's roll from final result (can go negative)
+                    antiArmourPenalty = attackerRolls.selectedRoll;
+                    baseDefenderTotal = defenderRolls.selectedRoll + defenderStats.ARM + defenderBonusTotal;
+                    const beforeAntiArmour = Math.floor(baseDefenderTotal * defenderArmMultiplier);
+                    defenderTotal = beforeAntiArmour - attackerRolls.selectedRoll;
+                } else {
+                    // No anti-armour
+                    baseDefenderTotal = defenderRolls.selectedRoll + defenderStats.ARM + defenderBonusTotal;
+                    defenderTotal = Math.floor(baseDefenderTotal * defenderArmMultiplier);
+                }
 // Build Roll Strings
                 let attackerRollStr;
 if (attackerFpRollCount > 1) {
@@ -1144,17 +1185,50 @@ attackerRollStr = `${attackerFpRollCount}x 1d${attackerDiceValue} ([${formattedR
 }
 
                 let defenderRollStr;
-if (defenderArmRollCount > 1) {
-                    const formattedRolls = defenderRolls.rolls.map(r =>
-                        r === defenderRolls.selectedRoll ? `<b>${r}</b>` : r
-                    ).join(', ');
-defenderRollStr = `${defenderArmRollCount}x 1d${defenderDiceValue} ([${formattedRolls}])`;
+if (antiArmour && antiArmourMode === 'Roll') {
+                    // Roll mode: show modified dice value
+                    const modifiedDiceValue = Math.max(0, defenderDiceValue - attackerRolls.selectedRoll);
+                    const modifiedRoll = modifiedDiceValue > 0 ? (baseDefenderTotal - defenderStats.ARM - defenderBonusTotal) : 0;
+                    if (modifiedDiceValue > 0) {
+                        defenderRollStr = `<span title="Rolled: ${modifiedRoll}">1d(${defenderDiceValue} - ${attackerRolls.selectedRoll})</span>`;
+                    } else {
+                        defenderRollStr = `1d(${defenderDiceValue} - ${attackerRolls.selectedRoll})|0`;
+                    }
+                } else if (antiArmour && antiArmourMode === 'Static') {
+                    // Static mode: show reduced ARM + bonuses
+                    const reduction = defenderStats.ARM + defenderBonusTotal - attackerDiceValue;
+                    if (defenderArmRollCount > 1) {
+                        const formattedRolls = defenderRolls.rolls.map(r =>
+                            r === defenderRolls.selectedRoll ? `<b>${r}</b>` : r
+                        ).join(', ');
+                        defenderRollStr = `${defenderArmRollCount}x 1d${defenderDiceValue} ([${formattedRolls}])`;
+                    } else {
+                        defenderRollStr = `<span title="Rolled: ${defenderRolls.selectedRoll}">1d${defenderDiceValue}</span>`;
+                    }
+                } else if (antiArmour && antiArmourMode === 'Full') {
+                    // Full mode: show normal roll, anti-armour applied to final result
+                    if (defenderArmRollCount > 1) {
+                        const formattedRolls = defenderRolls.rolls.map(r =>
+                            r === defenderRolls.selectedRoll ? `<b>${r}</b>` : r
+                        ).join(', ');
+                        defenderRollStr = `${defenderArmRollCount}x 1d${defenderDiceValue} ([${formattedRolls}])`;
+                    } else {
+                        defenderRollStr = `<span title="Rolled: ${defenderRolls.selectedRoll}">1d${defenderDiceValue}</span>`;
+                    }
                 } else {
-                    defenderRollStr = `<span title="Rolled: ${defenderRolls.selectedRoll}">1d${defenderDiceValue}</span>`;
-}
-                if (armourNatMax) {
+                    // No anti-armour
+                    if (defenderArmRollCount > 1) {
+                        const formattedRolls = defenderRolls.rolls.map(r =>
+                            r === defenderRolls.selectedRoll ? `<b>${r}</b>` : r
+                        ).join(', ');
+                        defenderRollStr = `${defenderArmRollCount}x 1d${defenderDiceValue} ([${formattedRolls}])`;
+                    } else {
+                        defenderRollStr = `<span title="Rolled: ${defenderRolls.selectedRoll}">1d${defenderDiceValue}</span>`;
+                    }
+                }
+                if (armourNatMax && (!antiArmour || antiArmourMode !== 'Roll')) {
                     defenderRollStr += ' <b>nat max!</b>';
-}
+                }
 
                 // Apply Crit, Historical, and Multi-Bomber multipliers
 const smitingSoulLabel = (smitingSoul && critDamageMultiplier > 1) ?
@@ -1231,7 +1305,26 @@ if (critDamageMultiplier > 1) {
 }
                 }
 
-                const armorStr = `${defenderStats.name} Armour ${defenderRollStr} + ${defenderStats.ARM} (ARM)${defenderBonusStr} = ${defenderTotal}`;
+                let armorStr;
+                if (antiArmour && antiArmourMode === 'Roll') {
+                    // Roll mode: show modified dice and normal ARM
+                    armorStr = `${defenderStats.name} Armour ${defenderRollStr} + ${defenderStats.ARM} (ARM)${defenderBonusStr} = ${defenderTotal}`;
+                } else if (antiArmour && antiArmourMode === 'Static') {
+                    // Static mode: show normal dice but modified ARM
+                    const modifiedArmBase = Math.max(0, defenderStats.ARM + defenderBonusTotal - attackerDiceValue);
+                    if (modifiedArmBase === 0) {
+                        armorStr = `${defenderStats.name} Armour ${defenderRollStr} + (${defenderStats.ARM} (ARM)${defenderBonusStr} - ${attackerDiceValue})|0 = ${defenderTotal}`;
+                    } else {
+                        armorStr = `${defenderStats.name} Armour ${defenderRollStr} + (${defenderStats.ARM} (ARM)${defenderBonusStr} - ${attackerDiceValue}) = ${defenderTotal}`;
+                    }
+                } else if (antiArmour && antiArmourMode === 'Full') {
+                    // Full mode: show normal calculation then subtract attacker's roll
+                    const beforeAntiArmour = Math.floor((defenderRolls.selectedRoll + defenderStats.ARM + defenderBonusTotal) * defenderArmMultiplier);
+                    armorStr = `${defenderStats.name} Armour ${defenderRollStr} + ${defenderStats.ARM} (ARM)${defenderBonusStr} = ${beforeAntiArmour} - ${attackerRolls.selectedRoll} = ${defenderTotal}`;
+                } else {
+                    // No anti-armour
+                    armorStr = `${defenderStats.name} Armour ${defenderRollStr} + ${defenderStats.ARM} (ARM)${defenderBonusStr} = ${defenderTotal}`;
+                }
 log.push(`${firepowerStr} vs ${armorStr}`);
 
                 // ===================================
@@ -1393,6 +1486,9 @@ document.getElementById('attackerDiceValue').value = "100";
             document.getElementById('attackerCustomDice').value = "";
 document.getElementById('attackerMorale').value = "Normal";
 document.getElementById('smitingSoul').checked = false;
+document.getElementById('antiArmour').checked = false;
+document.getElementById('antiArmourMode').value = "Roll";
+document.getElementById('antiArmourSection').style.display = 'none';
 document.getElementById('attackerAccRollCount').value = "1";
 document.getElementById('attackerAccRollType').value = "best";
 document.getElementById('attackerFpRollCount').value = "1";
@@ -1487,6 +1583,17 @@ if (mode === 'Carrier Shelling') {
 } else {
                 bomberSection.style.display = 'none';
 }
+        }
+
+        function updateAntiArmour() {
+            const antiArmourChecked = document.getElementById('antiArmour').checked;
+            const antiArmourSection = document.getElementById('antiArmourSection');
+
+            if (antiArmourChecked) {
+                antiArmourSection.style.display = 'block';
+            } else {
+                antiArmourSection.style.display = 'none';
+            }
         }
 
         function addAttackerAccBonus() {
@@ -1642,6 +1749,9 @@ const defenderArmRollType = document.getElementById('defenderArmRollType').value
 const historicalBonus = parseFloat(document.getElementById('historicalBonus').value) || 1;
 // Get Smiting Soul checkbox
 const smitingSoul = document.getElementById('smitingSoul').checked;
+// Get Anti-Armour settings
+const antiArmour = document.getElementById('antiArmour').checked;
+const antiArmourMode = document.getElementById('antiArmourMode').value;
 
             // Build config object
             const config = {
@@ -1654,6 +1764,8 @@ defenderMorale,
                 multiBomber,
 historicalBonus,
 smitingSoul,
+antiArmour,
+antiArmourMode,
 attackerDiceValue,
 defenderDiceValue,
 attackerAccBonuses,
