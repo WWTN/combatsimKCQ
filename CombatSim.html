@@ -1147,17 +1147,16 @@ defenderBonusStr += ` ${sign}${bonus.value} (${bonus.name})`;
                 let antiArmourStr = '';
 
                 if (antiArmour && antiArmourMode === 'Roll') {
-                    // Roll mode: reduce defender's dice value by attacker's roll result (min 0)
-                    const modifiedDiceValue = Math.max(0, defenderDiceValue - attackerRolls.selectedRoll);
-                    const modifiedRoll = modifiedDiceValue > 0 ? this.rollDice(modifiedDiceValue) : 0;
+                    // Roll mode: subtract attacker's roll from defender's selected roll (min 0)
+                    const modifiedDefenderRoll = Math.max(0, defenderRolls.selectedRoll - attackerRolls.selectedRoll);
                     antiArmourPenalty = attackerRolls.selectedRoll;
-                    baseDefenderTotal = modifiedRoll + defenderStats.ARM + defenderBonusTotal;
+                    baseDefenderTotal = modifiedDefenderRoll + defenderStats.ARM + defenderBonusTotal;
                     defenderTotal = Math.floor(baseDefenderTotal * defenderArmMultiplier);
                 } else if (antiArmour && antiArmourMode === 'Static') {
-                    // Static mode: reduce ARM + bonuses by attacker's dice value (min 0)
-                    const modifiedArmBase = Math.max(0, defenderStats.ARM + defenderBonusTotal - attackerDiceValue);
+                    // Static mode: subtract attacker's dice value from defender's selected roll (min 0)
+                    const modifiedDefenderRoll = Math.max(0, defenderRolls.selectedRoll - attackerDiceValue);
                     antiArmourPenalty = attackerDiceValue;
-                    baseDefenderTotal = defenderRolls.selectedRoll + modifiedArmBase;
+                    baseDefenderTotal = modifiedDefenderRoll + defenderStats.ARM + defenderBonusTotal;
                     defenderTotal = Math.floor(baseDefenderTotal * defenderArmMultiplier);
                 } else if (antiArmour && antiArmourMode === 'Full') {
                     // Full mode: subtract attacker's roll from final result (can go negative)
@@ -1185,25 +1184,28 @@ attackerRollStr = `${attackerFpRollCount}x 1d${attackerDiceValue} ([${formattedR
 }
 
                 let defenderRollStr;
-if (antiArmour && antiArmourMode === 'Roll') {
-                    // Roll mode: show modified dice value
-                    const modifiedDiceValue = Math.max(0, defenderDiceValue - attackerRolls.selectedRoll);
-                    const modifiedRoll = modifiedDiceValue > 0 ? (baseDefenderTotal - defenderStats.ARM - defenderBonusTotal) : 0;
-                    if (modifiedDiceValue > 0) {
-                        defenderRollStr = `<span title="Rolled: ${modifiedRoll}">1d(${defenderDiceValue} - ${attackerRolls.selectedRoll})</span>`;
-                    } else {
-                        defenderRollStr = `1d(${defenderDiceValue} - ${attackerRolls.selectedRoll})|0`;
-                    }
-                } else if (antiArmour && antiArmourMode === 'Static') {
-                    // Static mode: show reduced ARM + bonuses
-                    const reduction = defenderStats.ARM + defenderBonusTotal - attackerDiceValue;
+                const modifiedDefenderRoll = antiArmour && (antiArmourMode === 'Roll' || antiArmourMode === 'Static')
+                    ? Math.max(0, defenderRolls.selectedRoll - antiArmourPenalty)
+                    : defenderRolls.selectedRoll;
+                const rollReducedToZero = antiArmour && (antiArmourMode === 'Roll' || antiArmourMode === 'Static') && (defenderRolls.selectedRoll - antiArmourPenalty) <= 0;
+
+if (antiArmour && (antiArmourMode === 'Roll' || antiArmourMode === 'Static')) {
+                    // Roll/Static mode: show rolls with subtraction
                     if (defenderArmRollCount > 1) {
                         const formattedRolls = defenderRolls.rolls.map(r =>
                             r === defenderRolls.selectedRoll ? `<b>${r}</b>` : r
                         ).join(', ');
-                        defenderRollStr = `${defenderArmRollCount}x 1d${defenderDiceValue} ([${formattedRolls}])`;
+                        if (rollReducedToZero) {
+                            defenderRollStr = `|${defenderArmRollCount}x 1d${defenderDiceValue} ([${formattedRolls}] - ${antiArmourPenalty} (Armour Pierce))|0`;
+                        } else {
+                            defenderRollStr = `${defenderArmRollCount}x 1d${defenderDiceValue} ([${formattedRolls}] - ${antiArmourPenalty} (Armour Pierce))`;
+                        }
                     } else {
-                        defenderRollStr = `<span title="Rolled: ${defenderRolls.selectedRoll}">1d${defenderDiceValue}</span>`;
+                        if (rollReducedToZero) {
+                            defenderRollStr = `|<span title="Rolled: ${defenderRolls.selectedRoll}">1d${defenderDiceValue}</span> - ${antiArmourPenalty} (Armour Pierce)|0`;
+                        } else {
+                            defenderRollStr = `<span title="Rolled: ${defenderRolls.selectedRoll}">1d${defenderDiceValue}</span> - ${antiArmourPenalty} (Armour Pierce)`;
+                        }
                     }
                 } else if (antiArmour && antiArmourMode === 'Full') {
                     // Full mode: show normal roll, anti-armour applied to final result
@@ -1226,7 +1228,7 @@ if (antiArmour && antiArmourMode === 'Roll') {
                         defenderRollStr = `<span title="Rolled: ${defenderRolls.selectedRoll}">1d${defenderDiceValue}</span>`;
                     }
                 }
-                if (armourNatMax && (!antiArmour || antiArmourMode !== 'Roll')) {
+                if (armourNatMax && !antiArmour) {
                     defenderRollStr += ' <b>nat max!</b>';
                 }
 
@@ -1306,23 +1308,12 @@ if (critDamageMultiplier > 1) {
                 }
 
                 let armorStr;
-                if (antiArmour && antiArmourMode === 'Roll') {
-                    // Roll mode: show modified dice and normal ARM
-                    armorStr = `${defenderStats.name} Armour ${defenderRollStr} + ${defenderStats.ARM} (ARM)${defenderBonusStr} = ${defenderTotal}`;
-                } else if (antiArmour && antiArmourMode === 'Static') {
-                    // Static mode: show normal dice but modified ARM
-                    const modifiedArmBase = Math.max(0, defenderStats.ARM + defenderBonusTotal - attackerDiceValue);
-                    if (modifiedArmBase === 0) {
-                        armorStr = `${defenderStats.name} Armour ${defenderRollStr} + (${defenderStats.ARM} (ARM)${defenderBonusStr} - ${attackerDiceValue})|0 = ${defenderTotal}`;
-                    } else {
-                        armorStr = `${defenderStats.name} Armour ${defenderRollStr} + (${defenderStats.ARM} (ARM)${defenderBonusStr} - ${attackerDiceValue}) = ${defenderTotal}`;
-                    }
-                } else if (antiArmour && antiArmourMode === 'Full') {
+                if (antiArmour && antiArmourMode === 'Full') {
                     // Full mode: show normal calculation then subtract attacker's roll
                     const beforeAntiArmour = Math.floor((defenderRolls.selectedRoll + defenderStats.ARM + defenderBonusTotal) * defenderArmMultiplier);
-                    armorStr = `${defenderStats.name} Armour ${defenderRollStr} + ${defenderStats.ARM} (ARM)${defenderBonusStr} = ${beforeAntiArmour} - ${attackerRolls.selectedRoll} = ${defenderTotal}`;
+                    armorStr = `${defenderStats.name} Armour ${defenderRollStr} + ${defenderStats.ARM} (ARM)${defenderBonusStr} = ${beforeAntiArmour} - ${attackerRolls.selectedRoll} (Armour Pierce) = ${defenderTotal}`;
                 } else {
-                    // No anti-armour
+                    // Roll/Static/No anti-armour: show dice roll (with anti-armour applied if applicable) + ARM
                     armorStr = `${defenderStats.name} Armour ${defenderRollStr} + ${defenderStats.ARM} (ARM)${defenderBonusStr} = ${defenderTotal}`;
                 }
 log.push(`${firepowerStr} vs ${armorStr}`);
