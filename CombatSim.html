@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ Combat Simulator ⚔️</title>
+    <style>
+        * {
+            margin: 0;
+padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+background: #1a1f2e;
+            min-height: 100vh;
+            color: #fff;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 1100px;
+margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.25rem;
+            color: #ef4444;
+        }
+
+        .input-row {
+            display: grid;
+grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-panel {
+            background: #1e2532;
+border-radius: 6px;
+            padding: 0.875rem;
+            border: 1px solid;
+        }
+
+        .input-panel.attacker {
+            border-color: #ef4444;
+}
+
+        .input-panel.defender {
+            border-color: #3b82f6;
+}
+
+        .attack-mode-section {
+            display: flex;
+justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* New Styles for conditional sections */
+        .attack-mode-container,
+        .asw-modifier-container,
+        .multi-bomber-container {
+            background: #1e2532;
+border-radius: 8px;
+            padding: 0.875rem;
+            width: 200px;
+}
+        
+        .attack-mode-container {
+            border: 2px solid #8b5cf6;
+}
+        
+        .asw-modifier-container {
+            border: 2px solid #06b6d4;
+/* Cyan */
+        }
+        
+        .multi-bomber-container {
+            border: 2px solid #6366f1;
+/* Indigo */
+        }
+
+        .attack-mode-label,
+        .asw-modifier-label,
+        .multi-bomber-label {
+            font-size: 0.875rem;
+font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        
+        .attack-mode-label {
+            color: #c4b5fd;
+}
+        
+        .asw-modifier-label {
+            color: #67e8f9;
+/* Cyan */
+        }
+        
+        .multi-bomber-label {
+            color: #a5b4fc;
+/* Indigo */
+        }
+        /* End New Styles */
+
+
+        .config-row {
+            display: grid;
+grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .panel {
+            background: #1e2532;
+border-radius: 6px;
+            padding: 0.875rem;
+            border: 1px solid;
+        }
+
+        .panel.attacker {
+            border-color: #ef4444;
+}
+
+        .panel.defender {
+            border-color: #3b82f6;
+}
+
+        .panel-header {
+            font-size: 0.95rem;
+font-weight: bold;
+            margin-bottom: 0.625rem;
+        }
+
+        .panel.attacker .panel-header {
+            color: #ef4444;
+}
+
+        .panel.defender .panel-header {
+            color: #3b82f6;
+}
+
+        .input-section {
+            margin-bottom: 0.625rem;
+}
+
+        textarea {
+            width: 100%;
+background: #151922;
+            border: 1px solid #374151;
+            border-radius: 4px;
+            color: #fff;
+            padding: 0.5rem;
+            font-family: inherit;
+            font-size: 0.75rem;
+            resize: vertical;
+            min-height: 50px;
+}
+
+        textarea::placeholder {
+            color: #6b7280;
+}
+
+        .button-row {
+            display: grid;
+grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 0.75rem;
+border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+}
+
+        .btn-parse-attacker {
+            background: #ef4444;
+color: white;
+        }
+
+        .btn-parse-attacker:hover {
+            background: #dc2626;
+}
+
+        .btn-parse-defender {
+            background: #3b82f6;
+color: white;
+        }
+
+        .btn-parse-defender:hover {
+            background: #2563eb;
+}
+
+        .btn-clear {
+            background: #374151;
+color: white;
+        }
+
+        .btn-clear:hover {
+            background: #4b5563;
+}
+
+        select, input[type="number"], input[type="text"] {
+            width: 100%;
+background: #151922;
+            border: 1px solid #374151;
+            border-radius: 4px;
+            color: #fff;
+            padding: 0.375rem 0.5rem;
+            font-family: inherit;
+            font-size: 0.75rem;
+}
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+border-color: #6366f1;
+        }
+        
+        select {
+            cursor: pointer;
+}
+
+        .stats-grid {
+            display: grid;
+grid-template-columns: 1fr 1fr;
+            gap: 0.375rem;
+            margin-top: 0.625rem;
+        }
+
+        .stat-row {
+            display: flex;
+justify-content: space-between;
+            background: transparent;
+            padding: 0.25rem 0;
+            font-size: 0.75rem;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+font-weight: 500;
+        }
+
+        .stat-value {
+            color: #fff;
+}
+
+        .section-divider {
+            border-top: 1px solid #374151;
+margin: 0.75rem 0;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .panel.attacker .section-title {
+            color: #fca5a5;
+}
+
+        .panel.defender .section-title {
+            color: #93c5fd;
+}
+
+        .input-group {
+            display: grid;
+grid-template-columns: 1fr 1fr;
+            gap: 0.375rem;
+        }
+
+        .bonus-item {
+            margin-bottom: 0.5rem;
+}
+
+        .checkbox-row {
+            display: flex;
+align-items: center;
+            gap: 0.375rem;
+            margin-top: 0.25rem;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: auto;
+cursor: pointer;
+        }
+
+        .checkbox-row label {
+            font-size: 0.7rem;
+color: #94a3b8;
+            cursor: pointer;
+        }
+
+        .btn-add {
+            width: 100%;
+padding: 0.375rem;
+            margin-top: 0.375rem;
+            font-size: 0.7rem;
+        }
+
+        .panel.attacker .btn-add {
+            background: #dc2626;
+color: white;
+        }
+
+        .panel.attacker .btn-add:hover {
+            background: #b91c1c;
+}
+
+        .panel.defender .btn-add {
+            background: #2563eb;
+color: white;
+        }
+
+        .panel.defender .btn-add:hover {
+            background: #1d4ed8;
+}
+
+        .bottom-section {
+            display: flex;
+justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+}
+
+        .historical-bonus-container {
+            background: #1e2532;
+border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 0.75rem;
+            position: absolute;
+            left: 0;
+}
+
+        .roll-button-container {
+            display: flex;
+justify-content: center;
+            align-items: center;
+        }
+
+        .historical-bonus-label {
+            font-size: 0.7rem;
+font-weight: bold;
+            color: #fcd34d;
+            margin-bottom: 0.375rem;
+            text-align: center;
+        }
+
+        .historical-bonus-input {
+            width: 80px;
+background: #151922;
+            border: 1px solid #f59e0b;
+            text-align: center;
+            font-weight: 600;
+}
+
+        .btn-roll {
+            background: linear-gradient(to right, #dc2626, #3b82f6);
+/* Updated gradient */
+color: white;
+            font-size: 1.125rem;
+            padding: 0.875rem 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+transition: transform 0.2s;
+border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-roll:hover {
+            transform: scale(1.05);
+background: linear-gradient(to right, #b91c1c, #2563eb); /* Updated gradient */
+}
+
+        .result-container {
+            background: #1e2532;
+border: 2px solid #a855f7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+}
+
+        .result-header {
+            display: flex;
+justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .result-title {
+            font-size: 1rem;
+font-weight: bold;
+            color: #c084fc;
+        }
+
+        .btn-copy {
+            background: #9333ea;
+color: white;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+}
+
+        .btn-copy:hover {
+            background: #7e22ce;
+}
+
+        .result-content {
+            background: #151922;
+padding: 0.75rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            white-space: pre-line;
+line-height: 1.5;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">⚔️ Combat Simulator ⚔️</div>
+        
+        <div class="input-row">
+            <div class="input-panel attacker">
+                <div class="panel-header">Attacker</div>
+                <div class="input-section">
+  
+            
+      <textarea id="attackerInput" placeholder="Paste attacker stats here..."></textarea>
+                    <div class="button-row">
+                        <button class="btn btn-parse-attacker" onclick="parseAttacker()">Parse Attacker Stats</button>
+                        <button class="btn btn-clear" 
+onclick="clearAttacker()">Clear</button>
+            
+        </div>
+                </div>
+            </div>
+
+            <div class="input-panel defender">
+                <div class="panel-header">Defender</div>
+                <div class="input-section">
+    
+            
+    <textarea id="defenderInput" placeholder="Paste defender stats here..."></textarea>
+                    <div class="button-row">
+                        <button class="btn btn-parse-defender" onclick="parseDefender()">Parse Defender Stats</button>
+                        <button class="btn btn-clear" onclick="clearDefender()">Clear</button>
+  
+            
+      </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="attack-mode-section">
+            <div class="attack-mode-container">
+            
+    <div class="attack-mode-label">Attack Mode</div>
+                <select id="attackMode" 
+onchange="updateAttackMode()">
+                    <option value="Firepower">Firepower</option>
+<option value="Torpedo">Torpedo</option>
+<option value="ASW">ASW</option>
+<option value="Night Attack">Night Attack</option>
+<option value="Opening Airstrike">Opening Airstrike</option>
+<option value="Carrier Shelling">Carrier Shelling</option>
+                </select>
+            </div>
+            
+            <div class="asw-modifier-container" id="aswModifierSection" style="display: none;">
+            
+    <div class="asw-modifier-label">Class Modifier</div>
+                <select id="aswClassModifier">
+<option value="5">5x (DE, D-Type DD)</option>
+<option value="4">4x (CVE, BBVH)</option>
+<option value="3">3x (DD, CL)</option>
+<option value="2">2x (CVL)</option>
+<option value="1" selected>1x (Other)</option>
+                </select>
+            </div>
+            
+            <div class="multi-bomber-container" id="multiBomberSection" style="display: none;">
+      
+          <div class="multi-bomber-label">Multi-Bomber?</div>
+                <select id="multiBomber">
+<option value="No">No</option>
+<option value="1.1">1.1</option>
+<option value="1.2">1.2</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="config-row">
+            <div class="panel attacker">
+          
+      <div class="panel-header" id="attackerName">Attacker</div>
+    
+            
+                <div class="section-title">Morale</div>
+                <select id="attackerMorale">
+                    <option value="Normal">Normal</option>
+                    <option 
+value="High">High</option>
+<option value="Low">Low</option>
+<option value="Critical">Critical</option>
+                </select>
+
+                <div class="stats-grid" id="attackerStatsGrid">
+                    <div class="stat-row"><span class="stat-label">HP:</span><span class="stat-value" id="attackerHP">100</span></div>
+<div class="stat-row"><span class="stat-label">FP:</span><span class="stat-value" id="attackerFP">100</span></div>
+<div class="stat-row"><span class="stat-label">ARM:</span><span class="stat-value" id="attackerARM">100</span></div>
+<div class="stat-row"><span class="stat-label">TRP:</span><span class="stat-value" id="attackerTRP">100</span></div>
+<div class="stat-row"><span class="stat-label">AA:</span><span class="stat-value" id="attackerAA">100</span></div>
+<div class="stat-row"><span class="stat-label">EVA:</span><span class="stat-value" id="attackerEVA">50</span></div>
+<div class="stat-row"><span class="stat-label">REC:</span><span class="stat-value" id="attackerREC">100</span></div>
+<div class="stat-row"><span class="stat-label">LCK:</span><span class="stat-value" id="attackerLCK">50</span></div>
+<div class="stat-row"><span class="stat-label">ASW:</span><span class="stat-value" id="attackerASW">100</span></div>
+<div class="stat-row"><span class="stat-label">ACC:</span><span class="stat-value" id="attackerACC">100</span></div>
+    
+            </div>
+
+ 
+               <div class="section-divider"></div>
+
+                <div class="section-title">Dice Value</div>
+                <select id="attackerDiceValue" onchange="updateAttackerDiceValue()">
+<option value="100">d100</option>
+<option value="75">d75</option>
+<option value="50">d50</option>
+<option value="30">d30</option>
+                </select>
+               
+ <input type="number" id="attackerCustomDice" placeholder="Custom dice value" min="1" style="margin-top: 0.5rem;"
+onchange="updateAttackerCustomDice()">
+
+                <div class="section-divider"></div>
+
+                <div class="checkbox-row">
+<input type="checkbox" id="smitingSoul">
+<label for="smitingSoul">Smiting Soul</label>
+                </div>
+
+      
+          <div class="section-divider"></div>
+
+                <div class="section-title">Number of Rolls- ACC</div>
+         
+       <div class="input-group">
+<input type="number" id="attackerAccRollCount" placeholder="Roll count" min="1" value="1">
+<select id="attackerAccRollType">
+<option value="best">Best Of</option>
+<option value="worst">Worst Of</option>
+                    </select>
+                </div>
+
+                <div 
+class="section-divider"></div>
+
+                <div class="section-title">Applicable Bonuses- ACC</div>
+         
+       <div id="attackerAccBonuses">
+                    </div>
+<button class="btn btn-add" onclick="addAttackerAccBonus()">+ Add Bonus</button>
+
+                <div class="section-divider"></div>
+
+                <div class="section-title" id="attackerFpLabel">Number of Rolls- FP</div>
+                <div class="input-group">
+            
+  
+<input type="number" id="attackerFpRollCount" placeholder="Roll count" min="1" value="1">
+<select id="attackerFpRollType">
+<option value="best">Best Of</option>
+<option value="worst">Worst Of</option>
+               
+     </select>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <div class="section-title" id="attackerFpBonusLabel">Applicable Bonuses- FP</div>
+              
+  <div id="attackerFpBonuses">
+                    </div>
+                <button class="btn btn-add" onclick="addAttackerFpBonus()">+ Add Bonus</button>
+            </div>
+
+            <div class="panel defender">
+    
+            <div class="panel-header" id="defenderName">Defender</div>
+            
+    
+                <div class="section-title">Morale</div>
+                <select id="defenderMorale">
+                    <option value="Normal">Normal</option>
+<option value="High">High</option>
+<option value="Low">Low</option>
+<option value="Critical">Critical</option>
+                </select>
+
+                <div class="stats-grid" id="defenderStatsGrid">
+    
+                <div class="stat-row"><span class="stat-label">HP:</span><span class="stat-value" id="defenderHP">100</span></div>
+<div class="stat-row"><span class="stat-label">FP:</span><span class="stat-value" id="defenderFP">100</span></div>
+<div class="stat-row"><span class="stat-label">ARM:</span><span class="stat-value" id="defenderARM">100</span></div>
+<div class="stat-row"><span class="stat-label">TRP:</span><span class="stat-value" id="defenderTRP">100</span></div>
+<div class="stat-row"><span class="stat-label">AA:</span><span class="stat-value" id="defenderAA">100</span></div>
+<div class="stat-row"><span class="stat-label">EVA:</span><span class="stat-value" id="defenderEVA">50</span></div>
+<div class="stat-row"><span class="stat-label">REC:</span><span class="stat-value" id="defenderREC">100</span></div>
+<div class="stat-row"><span class="stat-label">LCK:</span><span class="stat-value" id="defenderLCK">50</span></div>
+<div class="stat-row"><span class="stat-label">ASW:</span><span class="stat-value" id="defenderASW">100</span></div>
+<div class="stat-row"><span class="stat-label">ACC:</span><span class="stat-value" id="defenderACC">100</span></div>
+                </div>
+
+                <div class="section-divider"></div>
+
+           
+     <div class="section-title">Dice Value</div>
+                <select id="defenderDiceValue" onchange="updateDefenderDiceValue()">
+<option value="100">d100</option>
+<option value="75">d75</option>
+<option value="50">d50</option>
+<option value="30">d30</option>
+                </select>
+                <input type="number" id="defenderCustomDice" placeholder="Custom dice value" min="1" style="margin-top: 0.5rem;"
+onchange="updateDefenderCustomDice()">
+
+                <div class="section-divider"></div>
+
+                <div class="section-title">Number of Rolls- LCK</div>
+                <div class="input-group">
+<input type="number" id="defenderLckRollCount" placeholder="Roll count" min="1" value="1">
+<select id="defenderLckRollType">
+<option value="best">Best Of</option>
+<option value="worst">Worst Of</option>
+                    </select>
+               
+ </div>
+
+           
+     <div class="section-divider"></div>
+
+                <div class="section-title">Applicable Bonuses- EVA</div>
+                <div id="defenderEvaBonuses">
+                    </div>
+<button class="btn btn-add" onclick="addDefenderEvaBonus()">+ Add Bonus</button>
+
+                <div class="section-divider"></div>
+
+    
+            <div class="section-title">Number of Rolls- ARM</div>
+                <div class="input-group">
+        
+<input type="number" id="defenderArmRollCount" placeholder="Roll count" min="1" value="1">
+<select id="defenderArmRollType">
+<option value="best">Best Of</option>
+<option value="worst">Worst Of</option>
+         
+           </select>
+                </div>
+
+            
+    <div class="section-divider"></div>
+
+                <div class="section-title">Applicable Bonuses- ARM</div>
+                <div id="defenderArmBonuses">
+                    </div>
+<button class="btn btn-add" onclick="addDefenderArmBonus()">+ Add Bonus</button>
+            </div>
+        </div>
+
+    
+    <div class="bottom-section">
+     
+       <div class="historical-bonus-container">
+                <div class="historical-bonus-label">Historical Bonus</div>
+<input type="number" class="historical-bonus-input" id="historicalBonus" step="0.1" min="0" value="1">
+            </div>
+            
+       
+     <div class="roll-button-container">
+<button class="btn btn-roll" onclick="rollCombat()">🎲 Roll!</button>
+            </div>
+        </div>
+
+       
+ <div id="resultContainer" class="result-container" style="display: none;">
+            <div class="result-header">
+               
+ <div class="result-title">Combat Result</div>
+<button class="btn btn-copy" onclick="copyResult()">Copy to Clipboard</button>
+            </div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        
+// COMBAT CALCULATOR CLASS
+        // (Ported from React handleRoll)
+        // ============================================
+   class CombatCalculator {
+            
+            // Roll a dice with given sides
+            rollDice(sides) {
+                if (sides <= 0) return 0;
+return Math.floor(Math.random() * sides) + 1;
+}
+
+            // Roll multiple dice and return best or worst
+            // Updated to match React version's return object
+            rollMultiple(sides, count, type) {
+                const rolls = [];
+for (let i = 0; i < count; i++) {
+                    rolls.push(this.rollDice(sides));
+}
+                const selectedRoll = type === 'best' ?
+Math.max(...rolls) : Math.min(...rolls);
+                // NatMax is 100 or higher (for custom dice) AND is the max possible roll
+const isNatMax = selectedRoll >= 100 && selectedRoll === sides;
+return { rolls, selectedRoll, isNatMax };
+}
+
+            // Main calculation function, replacing the simplified one
+            calculateAttack(config) {
+                const {
+                    attackerStats, defenderStats, attackerMorale, defenderMorale,
+                    attackMode, aswClassModifier, 
+multiBomber, historicalBonus, smitingSoul,
+                    attackerDiceValue, defenderDiceValue,
+                    attackerAccRollCount, attackerAccRollType, attackerAccBonuses,
+                    attackerFpRollCount, attackerFpRollType, attackerFpBonuses,
+                    defenderLckRollCount, defenderLckRollType, defenderEvaBonuses,
+           
+         defenderArmRollCount, defenderArmRollType, defenderArmBonuses
+                } = config;
+if (!attackerStats || !defenderStats) {
+return 'Please parse both attacker and defender stats first!';
+}
+
+                let log = [];
+// ===================================
+                // 1. ACCURACY CALCULATION
+                // ===================================
+                
+                // Attacker Morale Effects
+                let accuracyMultiplier = 1;
+let critMultiplier = 1;
+                let skipCrit = false;
+if (attackerMorale === 'High') {
+                    accuracyMultiplier = 1.2;
+critMultiplier = 1.1;
+} else if (attackerMorale === 'Low') {
+                    accuracyMultiplier = 0.9;
+critMultiplier = 0.9;
+} else if (attackerMorale === 'Critical') {
+                    accuracyMultiplier = 0.5;
+skipCrit = true;
+}
+                
+                // Attacker Accuracy Roll
+                const accuracyRolls = this.rollMultiple(attackerDiceValue, attackerAccRollCount, attackerAccRollType);
+const accuracyRoll = accuracyRolls.selectedRoll;
+                const accuracyNatMax = accuracyRolls.isNatMax;
+                
+                let accuracyRollStr;
+if (attackerAccRollCount > 1) {
+                    const formattedRolls = accuracyRolls.rolls.map(r => 
+                        r === accuracyRolls.selectedRoll ? `<b>${r}</b>` : r
+                    ).join(', ');
+accuracyRollStr = `${attackerAccRollCount}x 1d${attackerDiceValue} ([${formattedRolls}])`;
+                } else {
+                    accuracyRollStr = `1d${attackerDiceValue} = ${accuracyRoll}`;
+}
+                if (accuracyNatMax) {
+                    accuracyRollStr += ' <b>nat max!</b>';
+}
+                
+                // Attacker Accuracy Bonuses
+                let attackerAccBonusTotal = 0;
+let attackerAccBonusStr = '';
+                let attackerAccMultiplier = 1;
+if (attackMode !== 'ASW' && attackerStats.ACC !== 0) {
+                    attackerAccBonusTotal = attackerStats.ACC;
+attackerAccBonusStr = ` + ${attackerStats.ACC} (ACC)`;
+                }
+                
+                attackerAccBonuses.forEach(bonus => {
+                    if (bonus.name && bonus.value !== 0) {
+                        if (bonus.isMultiplier) {
+        
+                    attackerAccMultiplier *= bonus.value;
+                            attackerAccBonusStr += ` × ${bonus.value} (${bonus.name})`;
+                        } else {
+                   
+         attackerAccBonusTotal += bonus.value;
+                            const sign = 
+bonus.value >= 0 ? ' +' : ' ';
+                            attackerAccBonusStr += `${sign}${bonus.value} (${bonus.name})`;
+                   
+     }
+                    }
+                });
+const baseAccuracyRoll = accuracyRoll + attackerAccBonusTotal;
+                const finalAccuracyRoll = Math.floor(baseAccuracyRoll * attackerAccMultiplier);
+                
+                const moraleAdjustedAccuracy = Math.floor(finalAccuracyRoll * accuracyMultiplier);
+// Defender Evasion Bonuses
+let defenderEvaBonusTotal = 0;
+                let defenderEvaBonusStr = '';
+                let defenderEvaMultiplier = 1;
+defenderEvaBonuses.forEach(bonus => {
+                    if (bonus.name && bonus.value !== 0) {
+                        if (bonus.isMultiplier) {
+                            defenderEvaMultiplier *= bonus.value;
+                
+            defenderEvaBonusStr += ` × ${bonus.value} (${bonus.name})`;
+                        } else {
+                            defenderEvaBonusTotal += bonus.value;
+                           
+ const sign = bonus.value >= 0 ? ' +' : ' ';
+defenderEvaBonusStr += `${sign}${bonus.value} (${bonus.name})`;
+                        }
+                    }
+                });
+// Defender Evasion Calculation (with LCK)
+let defenderLckRoll = 0;
+                let defenderLckRollStr = '';
+                let finalDefenderEva = 0;
+if (defenderMorale === 'Critical') {
+                    defenderLckRollStr = '<b>No LCK roll (Critical Morale)</b>';
+const baseEva = (defenderStats.EVA + defenderEvaBonusTotal) * defenderEvaMultiplier;
+                    finalDefenderEva = Math.floor(baseEva * 0.8);
+} else {
+                    const defenderLckRolls = this.rollMultiple(defenderStats.LCK, defenderLckRollCount, defenderLckRollType);
+defenderLckRoll = defenderLckRolls.selectedRoll;
+if (defenderLckRollCount > 1) {
+                        const formattedRolls = defenderLckRolls.rolls.map(r => 
+                        r === defenderLckRolls.selectedRoll ? `<b>${r}</b>` : r
+                        ).join(', ');
+defenderLckRollStr = `${defenderLckRollCount}x 1d${defenderStats.LCK} = [${formattedRolls}]`;
+                    } else {
+                        defenderLckRollStr = `1d${defenderStats.LCK} = ${defenderLckRoll}`;
+}
+                    
+                    const baseEva = (defenderStats.EVA + defenderEvaBonusTotal + defenderLckRoll) * defenderEvaMultiplier;
+if (defenderMorale === 'High') {
+                        finalDefenderEva = Math.floor(baseEva * 1.1);
+} else if (defenderMorale === 'Low') {
+                        finalDefenderEva = Math.floor(baseEva * 0.9);
+} else {
+                        finalDefenderEva = Math.floor(baseEva);
+}
+                }
+                
+                // Accuracy Hit/Miss Check
+const autoHitThreshold = Math.ceil(attackerDiceValue * 0.9);
+const autoMissThreshold = Math.ceil(attackerDiceValue * 0.1);
+                
+                let accuracyHit = false;
+                let accuracyStr = '';
+                
+                let moraleMod = '';
+if (attackerMorale !== 'Normal') {
+                    moraleMod = ` × ${accuracyMultiplier} (${attackerMorale} Morale) = ${moraleAdjustedAccuracy}`;
+}
+                
+                let defenderMoraleStr = '';
+if (defenderMorale === 'High') {
+defenderMoraleStr = ` × 1.1 (High Morale) = ${finalDefenderEva}`;
+} else if (defenderMorale === 'Low') {
+defenderMoraleStr = ` × 0.9 (Low Morale) = ${finalDefenderEva}`;
+} else if (defenderMorale === 'Critical') {
+defenderMoraleStr = ` × 0.8 (Critical Morale) = ${finalDefenderEva}`;
+}
+                
+                let defenderEvaLog = `${defenderStats.EVA} (EVA)${defenderEvaBonusStr} + ${defenderLckRollStr}${defenderMoraleStr !== '' ?
+defenderMoraleStr : ` = ${finalDefenderEva}`}`;
+
+                if (accuracyRoll <= autoMissThreshold) {
+                    accuracyHit = false;
+accuracyStr = `Accuracy ${accuracyRollStr}${attackerAccBonusStr} = ${finalAccuracyRoll}${moraleMod} vs DC ${defenderEvaLog}, <b>10% rule, auto-miss!</b>`;
+} else if (accuracyRoll >= autoHitThreshold && moraleAdjustedAccuracy < finalDefenderEva) {
+                    accuracyHit = true;
+accuracyStr = `Accuracy ${accuracyRollStr}${attackerAccBonusStr} = ${finalAccuracyRoll}${moraleMod} vs DC ${defenderEvaLog}, <b>10% rule, auto-hit!</b>`;
+} else if (moraleAdjustedAccuracy >= finalDefenderEva) {
+                    accuracyHit = true;
+accuracyStr = `Accuracy ${accuracyRollStr}${attackerAccBonusStr} = ${finalAccuracyRoll}${moraleMod} vs DC ${defenderEvaLog}, success`;
+} else {
+                    accuracyHit = false;
+accuracyStr = `Accuracy ${accuracyRollStr}${attackerAccBonusStr} = ${finalAccuracyRoll}${moraleMod} vs DC ${defenderEvaLog}, failure`;
+}
+
+                log.push(accuracyStr);
+if (!accuracyHit) {
+log.push(`\n${attackerStats.name} misses!`);
+                    return log.join('\n');
+                }
+
+                // ===================================
+                // 2. CRITICAL HIT CALCULATION
+                // ===================================
+                
+                let critResultStr = '';
+let critDamageMultiplier = 1;
+if (skipCrit) {
+                    critResultStr = `<b>Critical Morale - Crit check skipped!</b>`;
+critDamageMultiplier = 1;
+} else {
+                    const critRoll = this.rollDice(100);
+let defenderLckForCrit = 0;
+                    let defenderCritMoraleStr = '';
+if (defenderMorale === 'Critical') {
+                        defenderLckForCrit = 0;
+defenderCritMoraleStr = ' <b>(Critical Morale: Defender LCK not applied)</b>';
+                    } else if (defenderMorale === 'High') {
+                        defenderLckForCrit = Math.floor(defenderStats.LCK * 1.1);
+defenderCritMoraleStr = ` × 1.1 (High Morale) = ${defenderLckForCrit}`;
+                    } else {
+                        defenderLckForCrit = defenderStats.LCK;
+}
+                    
+                    let critDCBase = 100;
+if (attackMode === 'Torpedo' || attackMode === 'ASW' || attackMode === 'Night Attack') {
+                        critDCBase = 90;
+} else if (attackMode === 'Opening Airstrike' || attackMode === 'Carrier Shelling') {
+                        critDCBase = 95;
+}
+                    const critDC = critDCBase - attackerStats.LCK + defenderLckForCrit;
+const moraleAdjustedCritRoll = Math.floor(critRoll * critMultiplier);
+let critSuccess = moraleAdjustedCritRoll >= critDC;
+                    const critNat100 = critRoll === 100;
+let critMoraleMod = '';
+if (attackerMorale !== 'Normal') {
+                        critMoraleMod = ` × ${critMultiplier} (${attackerMorale} Morale) = ${moraleAdjustedCritRoll}`;
+}
+                    
+                    if (accuracyNatMax) {
+                        critSuccess = true;
+if (critNat100) {
+                            critDamageMultiplier = 3;
+} else if (moraleAdjustedCritRoll >= critDC) {
+                            critDamageMultiplier = 2;
+} else {
+                            critDamageMultiplier = 1.5;
+}
+                    } else {
+                        if (critNat100) {
+                            critDamageMultiplier = 2;
+} else if (critSuccess) {
+                            critDamageMultiplier = 1.5;
+}
+                    }
+                    
+                    if (smitingSoul && critDamageMultiplier > 1) {
+                        critDamageMultiplier += 0.5;
+}
+
+                    let critDCStr = '';
+if (defenderMorale === 'Critical') {
+                        critDCStr = `DC ${critDCBase} - ${attackerStats.LCK}${defenderCritMoraleStr} = ${critDC}`;
+} else if (defenderMorale === 'High') {
+                        critDCStr = `DC ${critDCBase} - ${attackerStats.LCK} + ${defenderStats.LCK}${defenderCritMoraleStr} = ${critDC}`;
+} else {
+                        critDCStr = `DC ${critDCBase} - ${attackerStats.LCK} + ${defenderStats.LCK} = ${critDC}`;
+}
+
+                    if (accuracyNatMax) {
+                        critResultStr = `Crit roll 1d100 ${critDCStr}, rolled ${critRoll}${critMoraleMod}, <b>Accuracy nat max forces crit!</b>`;
+if (critNat100) {
+                            critResultStr += ' <b>(Also nat 100! x3 damage!)</b>';
+} else if (moraleAdjustedCritRoll >= critDC) {
+                            critResultStr += ' <b>(Also regular crit! x2 damage!)</b>';
+} else {
+                            critResultStr += ' <b>(x1.5 damage)</b>';
+}
+                    } else {
+                        critResultStr = critSuccess 
+                        ?
+`Crit roll 1d100 ${critDCStr}, rolled ${critRoll}${critMoraleMod}, <b>success</b>${critNat100 ? ' <b>(Nat 100!)</b>' : ''}`
+                        : `Crit roll 1d100 ${critDCStr}, rolled ${critRoll}${critMoraleMod}, failure`;
+}
+                }
+                log.push(critResultStr);
+// ===================================
+                // 3. DAMAGE CALCULATION
+                // ===================================
+
+                const attackerRolls = this.rollMultiple(attackerDiceValue, attackerFpRollCount, attackerFpRollType);
+const defenderRolls = this.rollMultiple(defenderDiceValue, defenderArmRollCount, defenderArmRollType);
+const firepowerNatMax = attackerRolls.isNatMax;
+                const armourNatMax = defenderRolls.isNatMax;
+// Attacker Damage Bonuses
+                let attackerBonusTotal = 0;
+let attackerBonusStr = '';
+                let attackerBonusMultiplier = 1;
+let carrierShellingMultiplier = 0;
+                let carrierShellingBonusTotal = 0;
+                let carrierShellingEquation = '';
+let hasCarrierShellingFormula = false;
+attackerFpBonuses.forEach(bonus => {
+                    if (bonus.name && bonus.value !== 0) {
+                        if (bonus.isMultiplier) {
+                            attackerBonusMultiplier *= bonus.value;
+            
+                const sign = bonus.value >= 0 ? '×' : '×';
+                            attackerBonusStr += ` ${sign} ${bonus.value} (${bonus.name})`;
+                        } else {
+                
+            attackerBonusTotal += bonus.value;
+const sign = bonus.value >= 0 ? '+' : '';
+                            attackerBonusStr += ` ${sign}${bonus.value} (${bonus.name})`;
+                        }
+                    } 
+else if (bonus.name) {
+                        // Check for special Carrier Shelling formula
+                        const sqrtMatch = bonus.name.match(/\(?\s*sqrt\s*\((\d+)\)\s*\*\s*\(?\s*(\d+)\s*\)?\s*(\w+)\s*\)?/i);
+                        if (sqrtMatch) {
+              
+              const num1 = parseInt(sqrtMatch[1]);
+                            const num2 = parseInt(sqrtMatch[2]);
+const stat = sqrtMatch[3];
+                            const calculated = Math.ceil(Math.sqrt(num1) * num2);
+                            attackerBonusTotal += calculated;
+attackerBonusStr += ` + (√${num1} × ${num2} ${stat})`;
+                        } else if (attackMode === 'Carrier Shelling') {
+                            const carrierMatch = bonus.name.match(/\(([^)]+)\)\(([^)]+)\)/);
+if (carrierMatch && !hasCarrierShellingFormula) {
+                                hasCarrierShellingFormula = true;
+const multiplierPart = carrierMatch[1];
+                                const sumPart = carrierMatch[2];
+                                
+                                const multiplierNumbers = multiplierPart.match(/[\d.]+/g);
+                                carrierShellingMultiplier = multiplierNumbers ?
+multiplierNumbers.reduce((acc, num) => acc + parseFloat(num), 0) : 1.5;
+                                
+                                carrierShellingEquation = sumPart;
+                                
+                                const sumNumbers = sumPart.match(/\d+/g);
+const sum = sumNumbers ? sumNumbers.reduce((acc, num) => acc + parseInt(num), 0) : 0;
+                                carrierShellingBonusTotal = sum;
+}
+                        }
+                    }
+                });
+// Attacker Final Damage Calculation
+let attackStat, attackStatName, attackerTotal;
+                
+                if (attackMode === 'ASW') {
+                    attackStat = attackerStats.ASW;
+attackStatName = 'ASW';
+const sqrtRoll = Math.sqrt(attackerRolls.selectedRoll);
+                    const baseTotal = Math.floor(sqrtRoll * aswClassModifier) + attackStat + attackerBonusTotal;
+attackerTotal = Math.floor(baseTotal * attackerBonusMultiplier);
+} else if (attackMode === 'Night Attack') {
+                    const baseAttack = attackerRolls.selectedRoll + attackerStats.FP + attackerStats.TRP + attackerBonusTotal;
+const nightTotal = Math.floor(baseAttack * 1.2);
+                    attackerTotal = Math.floor(nightTotal * attackerBonusMultiplier);
+                    attackStat = attackerStats.FP;
+// Used for label only
+                    attackStatName = 'Night Attack';
+} else if (attackMode === 'Carrier Shelling' && hasCarrierShellingFormula) {
+                    attackStat = attackerStats.FP;
+attackStatName = 'FP';
+                    const shellingComponent = Math.floor(carrierShellingMultiplier * (attackStat + carrierShellingBonusTotal));
+                    const baseTotal = attackerRolls.selectedRoll + shellingComponent + attackerBonusTotal;
+attackerTotal = Math.floor(baseTotal * attackerBonusMultiplier);
+                } else if (attackMode === 'Carrier Shelling') {
+                    attackStat = attackerStats.FP;
+attackStatName = 'FP';
+                    const baseTotal = attackerRolls.selectedRoll + attackStat + attackerBonusTotal;
+                    attackerTotal = Math.floor(baseTotal * attackerBonusMultiplier);
+} else if (attackMode === 'Opening Airstrike') {
+                    attackStat = attackerStats.FP;
+attackStatName = 'FP';
+const baseTotal = attackerRolls.selectedRoll + attackStat + attackerBonusTotal;
+                    attackerTotal = Math.floor(baseTotal * attackerBonusMultiplier);
+} else if (attackMode === 'Torpedo') {
+                    attackStat = attackerStats.TRP;
+attackStatName = 'TRP';
+const baseTotal = attackerRolls.selectedRoll + attackStat + attackerBonusTotal;
+                    attackerTotal = Math.floor(baseTotal * attackerBonusMultiplier);
+} else { // Default Firepower
+                    attackStat = attackerStats.FP;
+attackStatName = 'FP';
+const baseTotal = attackerRolls.selectedRoll + attackStat + attackerBonusTotal;
+                    attackerTotal = Math.floor(baseTotal * attackerBonusMultiplier);
+}
+                
+                // Defender Armour Calculation
+                let defenderBonusTotal = 0;
+let defenderBonusStr = '';
+                let defenderArmMultiplier = 1;
+defenderArmBonuses.forEach(bonus => {
+                    if (bonus.name && bonus.value !== 0) {
+                        if (bonus.isMultiplier) {
+                            defenderArmMultiplier *= bonus.value;
+        
+                    defenderBonusStr += ` × ${bonus.value} (${bonus.name})`;
+                        } else {
+                            defenderBonusTotal += bonus.value;
+                   
+         const sign = bonus.value >= 0 ? '+' : '';
+defenderBonusStr += ` ${sign}${bonus.value} (${bonus.name})`;
+                        }
+                    }
+                });
+const baseDefenderTotal = defenderRolls.selectedRoll + defenderStats.ARM + defenderBonusTotal;
+                const defenderTotal = Math.floor(baseDefenderTotal * defenderArmMultiplier);
+// Build Roll Strings
+                let attackerRollStr;
+if (attackerFpRollCount > 1) {
+                    const formattedRolls = attackerRolls.rolls.map(r => 
+                        r === attackerRolls.selectedRoll ? `<b>${r}</b>` : r
+                    ).join(', ');
+attackerRollStr = `${attackerFpRollCount}x (1d${attackerDiceValue} = [${formattedRolls}])`;
+                } else {
+                    attackerRollStr = `1d${attackerDiceValue} = ${attackerRolls.selectedRoll}`;
+}
+                if (firepowerNatMax) {
+                    attackerRollStr += ', <b>nat max!</b>';
+}
+                
+                let defenderRollStr;
+if (defenderArmRollCount > 1) {
+                    const formattedRolls = defenderRolls.rolls.map(r => 
+                        r === defenderRolls.selectedRoll ? `<b>${r}</b>` : r
+                    ).join(', ');
+defenderRollStr = `${defenderArmRollCount}x (1d${defenderDiceValue} = [${formattedRolls}])`;
+                } else {
+                    defenderRollStr = `1d${defenderDiceValue} = ${defenderRolls.selectedRoll}`;
+}
+                if (armourNatMax) {
+                    defenderRollStr += ', <b>nat max!</b>';
+}
+
+                // Apply Crit, Historical, and Multi-Bomber multipliers
+const smitingSoulLabel = (smitingSoul && critDamageMultiplier > 1) ?
+' (Smiting Soul)' : '';
+const finalAttackerTotal = Math.floor(attackerTotal * critDamageMultiplier);
+                const historicalAttackerTotal = historicalBonus !== 1 ?
+Math.floor(finalAttackerTotal * historicalBonus) : finalAttackerTotal;
+const multiBomberValue = multiBomber !== 'No' ? parseFloat(multiBomber) : 1;
+const finalDamageTotal = multiBomber !== 'No' && attackMode === 'Carrier Shelling' ? Math.floor(historicalAttackerTotal * multiBomberValue) : historicalAttackerTotal;
+// Build Firepower Log String
+                let firepowerStr = '';
+if (attackMode === 'Opening Airstrike') {
+                    firepowerStr = `Bombing!
+${attackerStats.name} attacks, `;
+if (critDamageMultiplier > 1) {
+                        firepowerStr += `${critDamageMultiplier}x${smitingSoulLabel} (${attackerRollStr} + ${attackStat} (${attackStatName})${attackerBonusStr} = ${attackerTotal}) = ${finalAttackerTotal}`;
+} else {
+                        firepowerStr += `${attackerRollStr} + ${attackStat} (${attackStatName})${attackerBonusStr} = ${attackerTotal}`;
+}
+                    if (historicalBonus !== 1) {
+                        firepowerStr += ` × ${historicalBonus} (The Weight of History) = ${historicalAttackerTotal}`;
+}
+                } else if (attackMode === 'Carrier Shelling') {
+                    firepowerStr = `${attackerStats.name} Carrier Shelling `;
+if (hasCarrierShellingFormula) {
+                        const multiplierStr = carrierShellingMultiplier.toString();
+if (critDamageMultiplier > 1) {
+                            firepowerStr += `${critDamageMultiplier}x${smitingSoulLabel} (${attackerRollStr} + (${multiplierStr})(${attackStat} (${attackStatName}) + ${carrierShellingEquation})${attackerBonusStr} = ${attackerTotal}) = ${finalAttackerTotal}`;
+} else {
+                            firepowerStr += `${attackerRollStr} + (${multiplierStr})(${attackStat} (${attackStatName}) + ${carrierShellingEquation})${attackerBonusStr} = ${attackerTotal}`;
+}
+                    } else {
+                        if (critDamageMultiplier > 1) {
+                            firepowerStr += `${critDamageMultiplier}x${smitingSoulLabel} (${attackerRollStr} + ${attackStat} (${attackStatName})${attackerBonusStr} = ${attackerTotal}) = ${finalAttackerTotal}`;
+} else {
+                            firepowerStr += `${attackerRollStr} + ${attackStat} (${attackStatName})${attackerBonusStr} = ${attackerTotal}`;
+}
+                    }
+                    if (historicalBonus !== 1) {
+                        firepowerStr += ` × ${historicalBonus} (The Weight of History) = ${historicalAttackerTotal}`;
+}
+                    if (multiBomber !== 'No') {
+                        firepowerStr += ` × ${multiBomber} (Multi-Bomber) = ${finalDamageTotal}`;
+}
+                } else if (attackMode === 'ASW') {
+                    firepowerStr = `${attackerStats.name} ${attackMode} `;
+if (critDamageMultiplier > 1) {
+                        firepowerStr += `${critDamageMultiplier}x${smitingSoulLabel} ((√${attackerRolls.selectedRoll} × ${aswClassModifier} (Class Mod)) + ${attackStat} (${attackStatName})${attackerBonusStr} = ${attackerTotal}) = ${finalAttackerTotal}`;
+} else {
+                        firepowerStr += `(√${attackerRolls.selectedRoll} × ${aswClassModifier} (Class Mod)) + ${attackStat} (${attackStatName})${attackerBonusStr} = ${attackerTotal}`;
+}
+                    if (historicalBonus !== 1) {
+                        firepowerStr += ` × ${historicalBonus} (The Weight of History) = ${historicalAttackerTotal}`;
+}
+                } else if (attackMode === 'Night Attack') {
+                    firepowerStr = `${attackerStats.name} ${attackMode} `;
+if (critDamageMultiplier > 1) {
+                        firepowerStr += `${critDamageMultiplier}x${smitingSoulLabel} ((${attackerRollStr} + ${attackerStats.FP} (FP) + ${attackerStats.TRP} (TRP)${attackerBonusStr}) × 1.2 (Night Combat) = ${attackerTotal}) = ${finalAttackerTotal}`;
+} else {
+                        firepowerStr += `(${attackerRollStr} + ${attackerStats.FP} (FP) + ${attackerStats.TRP} (TRP)${attackerBonusStr}) × 1.2 (Night Combat) = ${attackerTotal}`;
+}
+                    if (historicalBonus !== 1) {
+                        firepowerStr += ` × ${historicalBonus} (The Weight of History) = ${historicalAttackerTotal}`;
+}
+                } else { // Firepower or Torpedo
+                    firepowerStr = `${attackerStats.name} ${attackMode} `;
+if (critDamageMultiplier > 1) {
+                        firepowerStr += `${critDamageMultiplier}x${smitingSoulLabel} (${attackerRollStr} + ${attackStat} (${attackStatName})${attackerBonusStr} = ${attackerTotal}) = ${finalAttackerTotal}`;
+} else {
+                        firepowerStr += `${attackerRollStr} + ${attackStat} (${attackStatName})${attackerBonusStr} = ${attackerTotal}`;
+}
+                    if (historicalBonus !== 1) {
+                        firepowerStr += ` × ${historicalBonus} (The Weight of History) = ${historicalAttackerTotal}`;
+}
+                }
+
+                const armorStr = `${defenderStats.name} Armour ${defenderRollStr} + ${defenderStats.ARM} (ARM)${defenderBonusStr} = ${defenderTotal}`;
+log.push(`\n${firepowerStr} vs ${armorStr}`);
+
+                // ===================================
+                // 4. DAMAGE APPLICATION
+                // ===================================
+let damageResult = '';
+if (armourNatMax) {
+                    const newHP = defenderStats.HP - 1;
+if (firepowerNatMax) {
+                        damageResult = `\n<b>Armour nat max!
+Defender takes only 1 damage (trumps Firepower nat max)!</b> HP = ${newHP}`;
+} else {
+                        damageResult = `\n<b>Armour nat max!
+Defender takes only 1 damage!</b> HP = ${newHP}`;
+                    }
+                    if (newHP <= 0) {
+                        damageResult += `, ${defenderStats.name} sunk!`;
+}
+                } else if (firepowerNatMax) {
+                    const damage = finalDamageTotal;
+const newHP = defenderStats.HP - damage;
+                    damageResult = `\n<b>Firepower nat max! Armour ignored!</b> ${defenderStats.name} takes ${damage} damage! HP = ${newHP}`;
+if (newHP <= 0) {
+                        damageResult += `, ${defenderStats.name} sunk!`;
+}
+                } else {
+                    const rawDamage = finalDamageTotal - defenderTotal;
+const damageThreshold = defenderStats.HP * 0.05;
+                    
+                    if (rawDamage > damageThreshold) {
+                        const newHP = defenderStats.HP - rawDamage;
+if (newHP <= 0) {
+                            damageResult = `\n${defenderStats.name} takes ${rawDamage} damage!
+HP = ${newHP}, ${defenderStats.name} sunk!`;
+                        } else {
+                            damageResult = `\n${defenderStats.name} takes ${rawDamage} damage!
+HP = ${newHP}`;
+                        }
+                    } else {
+                        // Scratch Damage
+const scratchRoll = this.rollDice(6);
+const scratchDamage = Math.ceil((defenderStats.HP / 100) * scratchRoll);
+                        const newHP = defenderStats.HP - scratchDamage;
+                        damageResult = `\n\n${defenderStats.name} takes 1d6 = ${scratchRoll}% Scratch damage! HP = ${newHP}`;
+}
+                }
+
+                log.push(damageResult);
+return log.join('\n');
+            }
+        }
+
+        // Global combat calculator instance
+        const combatCalc = new CombatCalculator();
+// ============================================
+        // UTILITY AND EVENT HANDLER FUNCTIONS
+        // ============================================
+        
+        // Default stats object
+        const defaultStats = {
+            name: '', HP: 100, FP: 100, ARM: 100, TRP: 100,
+            AA: 100, EVA: 50, REC: 100, LCK: 50, ASW: 100, ACC: 100
+   
+     };
+        
+        // Stats parsing function (from React)
+        function parseStats(input) {
+            const lines = input.trim().split('\n');
+const stats = { ...defaultStats };
+
+            if (lines.length === 0) return stats;
+
+            const firstLine = lines[0];
+const nameMatch = firstLine.match(/^([A-Za-z\-]+)/);
+stats.name = nameMatch ? nameMatch[1] : firstLine.split(/[\s\t]/)[0].trim();
+            
+const hpMatch = firstLine.match(/HP[\s\t]*(\d+)/);
+if (hpMatch) {
+                stats.HP = parseInt(hpMatch[1]) ||
+0;
+}
+
+const isDetailedFormat = lines.some(line => line.includes('Class Notes') || line.includes('LVL'));
+if (isDetailedFormat) {
+                for (let i = 2; i < lines.length; i++) {
+                    const parts = lines[i].split('\t').filter(p => p.trim());
+for (let j = 0; j < parts.length; j += 2) {
+                        const statName = parts[j].trim();
+const statValue = parseInt(parts[j + 1]) || 0;
+                        if (stats.hasOwnProperty(statName)) {
+                            stats[statName] = statValue;
+}
+                    }
+                }
+            } else {
+                for (let i = 1; i < lines.length; i++) {
+const line = lines[i].trim();
+const parts = line.split(/\s{2,}|\t/).filter(p => p.trim());
+                    
+                    for (let j = 0; j < parts.length; j += 2) {
+                        if (j + 1 < parts.length) {
+                            const statName = parts[j].trim();
+const statValue = parts[j + 1].trim();
+                            if (statValue === '-') {
+                                stats[statName] = 0;
+} else if (stats.hasOwnProperty(statName)) {
+                                stats[statName] = parseInt(statValue) ||
+0;
+}
+                        }
+                    }
+                }
+            }
+            return stats;
+}
+
+        // Update attacker stats display
+        function updateAttackerDisplay(stats) {
+document.getElementById('attackerName').textContent = stats.name ||
+'Attacker';
+document.getElementById('attackerHP').textContent = stats.HP;
+document.getElementById('attackerFP').textContent = stats.FP;
+document.getElementById('attackerARM').textContent = stats.ARM;
+document.getElementById('attackerTRP').textContent = stats.TRP;
+document.getElementById('attackerAA').textContent = stats.AA;
+document.getElementById('attackerEVA').textContent = stats.EVA;
+document.getElementById('attackerREC').textContent = stats.REC;
+document.getElementById('attackerLCK').textContent = stats.LCK;
+document.getElementById('attackerASW').textContent = stats.ASW;
+document.getElementById('attackerACC').textContent = stats.ACC;
+}
+
+        // Update defender stats display
+        function updateDefenderDisplay(stats) {
+document.getElementById('defenderName').textContent = stats.name ||
+'Defender';
+document.getElementById('defenderHP').textContent = stats.HP;
+document.getElementById('defenderFP').textContent = stats.FP;
+document.getElementById('defenderARM').textContent = stats.ARM;
+document.getElementById('defenderTRP').textContent = stats.TRP;
+document.getElementById('defenderAA').textContent = stats.AA;
+document.getElementById('defenderEVA').textContent = stats.EVA;
+document.getElementById('defenderREC').textContent = stats.REC;
+document.getElementById('defenderLCK').textContent = stats.LCK;
+document.getElementById('defenderASW').textContent = stats.ASW;
+document.getElementById('defenderACC').textContent = stats.ACC;
+}
+
+        // Parse attacker stats
+        function parseAttacker() {
+            const input = document.getElementById('attackerInput').value;
+if (input.trim()) {
+                const stats = parseStats(input);
+updateAttackerDisplay(stats);
+            }
+        }
+
+        // Clear attacker
+        function clearAttacker() {
+document.getElementById('attackerInput').value = '';
+updateAttackerDisplay({ ...defaultStats, name: 'Attacker' });
+document.getElementById('attackerDiceValue').value = "100";
+            document.getElementById('attackerCustomDice').value = "";
+document.getElementById('attackerMorale').value = "Normal";
+document.getElementById('smitingSoul').checked = false;
+document.getElementById('attackerAccRollCount').value = "1";
+document.getElementById('attackerAccRollType').value = "best";
+document.getElementById('attackerFpRollCount').value = "1";
+            document.getElementById('attackerFpRollType').value = "best";
+document.getElementById('attackerAccBonuses').innerHTML = "";
+document.getElementById('attackerFpBonuses').innerHTML = "";
+}
+
+        // Parse defender stats
+        function parseDefender() {
+            const input = document.getElementById('defenderInput').value;
+if (input.trim()) {
+                const stats = parseStats(input);
+updateDefenderDisplay(stats);
+            }
+        }
+
+        // Clear defender
+        function clearDefender() {
+document.getElementById('defenderInput').value = '';
+updateDefenderDisplay({ ...defaultStats, name: 'Defender' });
+document.getElementById('defenderDiceValue').value = "100";
+            document.getElementById('defenderCustomDice').value = "";
+document.getElementById('defenderMorale').value = "Normal";
+document.getElementById('defenderLckRollCount').value = "1";
+            document.getElementById('defenderLckRollType').value = "best";
+document.getElementById('defenderArmRollCount').value = "1";
+            document.getElementById('defenderArmRollType').value = "best";
+document.getElementById('defenderEvaBonuses').innerHTML = "";
+document.getElementById('defenderArmBonuses').innerHTML = "";
+}
+
+        function updateAttackerDiceValue() {
+document.getElementById('attackerCustomDice').value = '';
+}
+
+        function updateAttackerCustomDice() {
+            const input = document.getElementById('attackerCustomDice');
+if (input.value) {
+                document.getElementById('attackerDiceValue').value = input.value;
+}
+        }
+
+        function updateDefenderDiceValue() {
+document.getElementById('defenderCustomDice').value = '';
+}
+
+        function updateDefenderCustomDice() {
+            const input = document.getElementById('defenderCustomDice');
+if (input.value) {
+                document.getElementById('defenderDiceValue').value = input.value;
+}
+        }
+
+        // Get label for FP/TRP/etc.
+section
+        function getAttackLabel(mode) {
+switch(mode) {
+case 'Carrier Shelling':
+                    return 'Strike!';
+case 'Opening Airstrike':
+                    return 'Bombing!';
+case 'Torpedo':
+                    return 'TRP';
+case 'ASW':
+                    return 'ASW';
+case 'Night Attack':
+                    return 'Night Attack';
+default:
+                    return 'FP';
+}
+        }
+        
+        // Show/hide conditional sections based on attack mode
+        function updateAttackMode() {
+            const mode = document.getElementById('attackMode').value;
+const aswSection = document.getElementById('aswModifierSection');
+            const bomberSection = document.getElementById('multiBomberSection');
+            
+            // Update FP/TRP/ASW labels
+            const label = getAttackLabel(mode);
+document.getElementById('attackerFpLabel').textContent = `Number of Rolls- ${label}`;
+document.getElementById('attackerFpBonusLabel').textContent = `Applicable Bonuses- ${label}`;
+if (mode === 'ASW') {
+                aswSection.style.display = 'block';
+} else {
+                aswSection.style.display = 'none';
+}
+            
+if (mode === 'Carrier Shelling') {
+                bomberSection.style.display = 'block';
+} else {
+                bomberSection.style.display = 'none';
+}
+        }
+
+        function addAttackerAccBonus() {
+            const container = document.getElementById('attackerAccBonuses');
+const bonusHTML = `
+                <div class="bonus-item">
+                    <div class="input-group">
+<input type="text" placeholder="Bonus name">
+<input type="number" step="0.1" placeholder="0" value="">
+</div>
+                    <div class="checkbox-row">
+<input type="checkbox" id="att-acc-mult-${container.children.length}">
+                        <label for="att-acc-mult-${container.children.length}">Multiplier</label>
+</div>
+    
+            </div>
+            `;
+container.insertAdjacentHTML('beforeend', bonusHTML);
+        }
+
+        function addAttackerFpBonus() {
+            const container = document.getElementById('attackerFpBonuses');
+const bonusHTML = `
+                <div class="bonus-item">
+                    <div class="input-group">
+<input type="text" placeholder="Bonus name">
+<input type="number" step="0.1" placeholder="0" value="">
+</div>
+                    <div class="checkbox-row">
+<input type="checkbox" id="att-fp-mult-${container.children.length}">
+                        <label for="att-fp-mult-${container.children.length}">Multiplier</label>
+</div>
+    
+            </div>
+            `;
+container.insertAdjacentHTML('beforeend', bonusHTML);
+        }
+
+        function addDefenderEvaBonus() {
+            const container = document.getElementById('defenderEvaBonuses');
+const bonusHTML = `
+                <div class="bonus-item">
+                    <div class="input-group">
+<input type="text" placeholder="Bonus name">
+<input type="number" step="0.1" placeholder="0" value="">
+</div>
+                    <div class="checkbox-row">
+<input type="checkbox" id="def-eva-mult-${container.children.length}">
+                        <label for="def-eva-mult-${container.children.length}">Multiplier</label>
+</div>
+    
+            </div>
+            `;
+container.insertAdjacentHTML('beforeend', bonusHTML);
+        }
+
+        function addDefenderArmBonus() {
+            const container = document.getElementById('defenderArmBonuses');
+const bonusHTML = `
+                <div class="bonus-item">
+                    <div class="input-group">
+<input type="text" placeholder="Bonus name">
+<input type="number" step="0.1" placeholder="0" value="">
+</div>
+                    <div class="checkbox-row">
+<input type="checkbox" id="def-arm-mult-${container.children.length}">
+                        <label for="def-arm-mult-${container.children.length}">Multiplier</label>
+</div>
+    
+            </div>
+            `;
+container.insertAdjacentHTML('beforeend', bonusHTML);
+        }
+        
+        // Helper to get bonuses from the DOM
+        function getBonusesFromDOM(containerId) {
+            const bonuses = [];
+document.querySelectorAll(`#${containerId} .bonus-item`).forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                const name = inputs[0].value;
+                const value = parseFloat(inputs[1].value) || 0;
+                const isMultiplier = inputs[2].checked;
+if (name.trim() !== '' || value !== 0) {
+           
+         bonuses.push({ name, value, isMultiplier });
+                }
+            });
+return bonuses;
+        }
+
+        function rollCombat() {
+            // Get attack mode and related values
+const attackMode = document.getElementById('attackMode').value;
+const aswClassModifier = parseFloat(document.getElementById('aswClassModifier').value);
+const multiBomber = document.getElementById('multiBomber').value;
+            
+            // Get attacker configuration
+const attackerStats = {
+                HP: parseInt(document.getElementById('attackerHP').textContent),
+                FP: parseInt(document.getElementById('attackerFP').textContent),
+                ARM: parseInt(document.getElementById('attackerARM').textContent),
+                TRP: parseInt(document.getElementById('attackerTRP').textContent),
+                AA: parseInt(document.getElementById('attackerAA').textContent),
+EVA: 
+parseInt(document.getElementById('attackerEVA').textContent),
+                REC: parseInt(document.getElementById('attackerREC').textContent),
+                LCK: parseInt(document.getElementById('attackerLCK').textContent),
+                ASW: parseInt(document.getElementById('attackerASW').textContent),
+                ACC: parseInt(document.getElementById('attackerACC').textContent),
+                name: document.getElementById('attackerName').textContent
+            };
+const attackerMorale = document.getElementById('attackerMorale').value;
+const attackerDiceValue = parseInt(document.getElementById('attackerDiceValue').value) || 100;
+            
+            // Get attacker ACC bonuses
+const attackerAccBonuses = getBonusesFromDOM('attackerAccBonuses');
+const attackerAccRollCount = parseInt(document.getElementById('attackerAccRollCount').value) || 1;
+const attackerAccRollType = document.getElementById('attackerAccRollType').value;
+            
+            // Get attacker FP bonuses
+const attackerFpBonuses = getBonusesFromDOM('attackerFpBonuses');
+const attackerFpRollCount = parseInt(document.getElementById('attackerFpRollCount').value) || 1;
+const attackerFpRollType = document.getElementById('attackerFpRollType').value;
+// Get defender configuration
+const defenderStats = {
+                HP: parseInt(document.getElementById('defenderHP').textContent),
+                FP: parseInt(document.getElementById('defenderFP').textContent),
+                ARM: parseInt(document.getElementById('defenderARM').textContent),
+                TRP: parseInt(document.getElementById('defenderTRP').textContent),
+                AA: parseInt(document.getElementById('defenderAA').textContent),
+EVA: parseInt(document.getElementById('defenderEVA').textContent),
+        
+        REC: parseInt(document.getElementById('defenderREC').textContent),
+                LCK: parseInt(document.getElementById('defenderLCK').textContent),
+                ASW: parseInt(document.getElementById('defenderASW').textContent),
+                ACC: parseInt(document.getElementById('defenderACC').textContent),
+                name: document.getElementById('defenderName').textContent
+            };
+const defenderMorale = document.getElementById('defenderMorale').value;
+const defenderDiceValue = parseInt(document.getElementById('defenderDiceValue').value) || 100;
+
+            // Get defender EVA bonuses
+const defenderEvaBonuses = getBonusesFromDOM('defenderEvaBonuses');
+const defenderLckRollCount = parseInt(document.getElementById('defenderLckRollCount').value) || 1;
+const defenderLckRollType = document.getElementById('defenderLckRollType').value;
+            
+            // Get defender ARM bonuses
+const defenderArmBonuses = getBonusesFromDOM('defenderArmBonuses');
+const defenderArmRollCount = parseInt(document.getElementById('defenderArmRollCount').value) || 1;
+const defenderArmRollType = document.getElementById('defenderArmRollType').value;
+            
+            // Get historical bonus
+const historicalBonus = parseFloat(document.getElementById('historicalBonus').value) || 1;
+// Get Smiting Soul checkbox
+const smitingSoul = document.getElementById('smitingSoul').checked;
+
+            // Build config object
+            const config = {
+attackerStats,
+defenderStats,
+attackerMorale,
+defenderMorale,
+                attackMode,
+                aswClassModifier,
+                multiBomber,
+historicalBonus,
+smitingSoul,
+attackerDiceValue,
+defenderDiceValue,
+attackerAccBonuses,
+attackerAccRollCount,
+attackerAccRollType,
+attackerFpBonuses,
+attackerFpRollCount,
+attackerFpRollType,
+defenderEvaBonuses,
+defenderLckRollCount,
+defenderLckRollType,
+defenderArmBonuses,
+defenderArmRollCount,
+defenderArmRollType
+            };
+const resultLog = combatCalc.calculateAttack(config);
+            
+            // Display result
+            document.getElementById('resultContainer').style.display = 'block';
+// Convert BBCode-style [b] to <b> for HTML rendering
+document.getElementById('resultContent').innerHTML = resultLog
+                .replace(/\[b\]/g, '<b>')
+                .replace(/\[\/b\]/g, '</b>');
+}
+
+        function copyResult() {
+            // Get HTML from result
+            const resultHTML = document.getElementById('resultContent').innerHTML;
+
+            // Convert HTML <b> tags to BBCode [b] tags
+            const bbCodeResult = resultHTML
+                .replace(/<b>/g, '[b]')
+                .replace(/<\/b>/g, '[/b]');
+
+            // Use a temporary element to decode any HTML entities (e.g., &lt; becomes <)
+const tempEl = document.createElement('div');
+            tempEl.innerHTML = bbCodeResult;
+            const finalText = tempEl.textContent || tempEl.innerText || '';
+            
+navigator.clipboard.writeText(finalText).then(() => {
+                alert('Result copied to clipboard!');
+            }, (err) => {
+                alert('Failed to copy result.');
+            });
+}
+        
+        // Initialize UI
+        document.addEventListener('DOMContentLoaded', () => {
+            clearAttacker();
+            clearDefender();
+        });
+</script>
+</body>
+</html>
