@@ -915,7 +915,7 @@ accuracyStr = `Accuracy ${accuracyRollStr}${attackerAccBonusStr} = ${finalAccura
 
                 log.push(accuracyStr);
 if (!accuracyHit) {
-log.push(`\n${attackerStats.name} misses!`);
+log.push(`${attackerStats.name} misses!`);
                     return log.join('\n');
                 }
 
@@ -1232,7 +1232,7 @@ if (critDamageMultiplier > 1) {
                 }
 
                 const armorStr = `${defenderStats.name} Armour ${defenderRollStr} + ${defenderStats.ARM} (ARM)${defenderBonusStr} = ${defenderTotal}`;
-log.push(`\n${firepowerStr} vs ${armorStr}`);
+log.push(`${firepowerStr} vs ${armorStr}`);
 
                 // ===================================
                 // 4. DAMAGE APPLICATION
@@ -1241,11 +1241,9 @@ let damageResult = '';
 if (armourNatMax) {
                     const newHP = defenderStats.HP - 1;
 if (firepowerNatMax) {
-                        damageResult = `\n<b>Armour nat max!
-Defender takes only 1 damage (trumps Firepower nat max)!</b> HP = ${newHP}`;
+                        damageResult = `<b>Armour nat max! Defender takes only 1 damage (trumps Firepower nat max)!</b> HP = ${newHP}`;
 } else {
-                        damageResult = `\n<b>Armour nat max!
-Defender takes only 1 damage!</b> HP = ${newHP}`;
+                        damageResult = `<b>Armour nat max! Defender takes only 1 damage!</b> HP = ${newHP}`;
                     }
                     if (newHP <= 0) {
                         damageResult += `, ${defenderStats.name} sunk!`;
@@ -1253,29 +1251,27 @@ Defender takes only 1 damage!</b> HP = ${newHP}`;
                 } else if (firepowerNatMax) {
                     const damage = finalDamageTotal;
 const newHP = defenderStats.HP - damage;
-                    damageResult = `\n<b>Firepower nat max! Armour ignored!</b> ${defenderStats.name} takes ${damage} damage! HP = ${newHP}`;
+                    damageResult = `<b>Firepower nat max! Armour ignored!</b> ${defenderStats.name} takes ${damage} damage! HP = ${newHP}`;
 if (newHP <= 0) {
                         damageResult += `, ${defenderStats.name} sunk!`;
 }
                 } else {
                     const rawDamage = finalDamageTotal - defenderTotal;
 const damageThreshold = defenderStats.HP * 0.05;
-                    
+
                     if (rawDamage > damageThreshold) {
                         const newHP = defenderStats.HP - rawDamage;
 if (newHP <= 0) {
-                            damageResult = `\n${defenderStats.name} takes ${rawDamage} damage!
-HP = ${newHP}, ${defenderStats.name} sunk!`;
+                            damageResult = `${defenderStats.name} takes ${rawDamage} damage! HP = ${newHP}, ${defenderStats.name} sunk!`;
                         } else {
-                            damageResult = `\n${defenderStats.name} takes ${rawDamage} damage!
-HP = ${newHP}`;
+                            damageResult = `${defenderStats.name} takes ${rawDamage} damage! HP = ${newHP}`;
                         }
                     } else {
                         // Scratch Damage
 const scratchRoll = this.rollDice(6);
 const scratchDamage = Math.ceil((defenderStats.HP / 100) * scratchRoll);
                         const newHP = defenderStats.HP - scratchDamage;
-                        damageResult = `\n\n${defenderStats.name} takes 1d6 = ${scratchRoll}% Scratch damage! HP = ${newHP}`;
+                        damageResult = `${defenderStats.name} takes 1d6 = ${scratchRoll}% Scratch damage! HP = ${newHP}`;
 }
                 }
 
