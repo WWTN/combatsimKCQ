@@ -574,8 +574,13 @@ onchange="updateAttackerCustomDice()">
                     </select>
                 </div>
 
-      
+
           <div class="section-divider"></div>
+
+                <div class="section-title">Critical Threshold</div>
+                <input type="number" id="critThreshold" placeholder="Critical DC base" min="0" value="100">
+
+                <div class="section-divider"></div>
 
                 <div class="section-title">Number of Rolls- ACC</div>
          
@@ -761,7 +766,7 @@ return { rolls, selectedRoll, isNatMax };
                 const {
                     attackerStats, defenderStats, attackerMorale, defenderMorale,
                     attackMode, aswClassModifier,
-multiBomber, historicalBonus, smitingSoul, antiArmour, antiArmourMode,
+multiBomber, historicalBonus, smitingSoul, antiArmour, antiArmourMode, critThreshold,
                     attackerDiceValue, defenderDiceValue,
                     attackerAccRollCount, attackerAccRollType, attackerAccBonuses,
                     attackerFpRollCount, attackerFpRollType, attackerFpBonuses,
@@ -954,14 +959,8 @@ defenderCritMoraleStr = ` × 1.1 (High Morale) = ${defenderLckForCrit}`;
                     } else {
                         defenderLckForCrit = defenderStats.LCK;
 }
-                    
-                    let critDCBase = 100;
-if (attackMode === 'Torpedo' || attackMode === 'ASW' || attackMode === 'Night Attack') {
-                        critDCBase = 90;
-} else if (attackMode === 'Opening Airstrike' || attackMode === 'Carrier Shelling') {
-                        critDCBase = 95;
-}
-                    const critDC = critDCBase - attackerStats.LCK + defenderLckForCrit;
+
+                    const critDC = critThreshold - attackerStats.LCK + defenderLckForCrit;
 const moraleAdjustedCritRoll = Math.floor(critRoll * critMultiplier);
 let critSuccess = moraleAdjustedCritRoll >= critDC;
                     const critNat100 = critRoll === 100;
@@ -993,11 +992,11 @@ if (critNat100) {
 
                     let critDCStr = '';
 if (defenderMorale === 'Critical') {
-                        critDCStr = `DC ${critDCBase} - ${attackerStats.LCK}${defenderCritMoraleStr} = ${critDC}`;
+                        critDCStr = `DC ${critThreshold} - ${attackerStats.LCK}${defenderCritMoraleStr} = ${critDC}`;
 } else if (defenderMorale === 'High') {
-                        critDCStr = `DC ${critDCBase} - ${attackerStats.LCK} + ${defenderStats.LCK}${defenderCritMoraleStr} = ${critDC}`;
+                        critDCStr = `DC ${critThreshold} - ${attackerStats.LCK} + ${defenderStats.LCK}${defenderCritMoraleStr} = ${critDC}`;
 } else {
-                        critDCStr = `DC ${critDCBase} - ${attackerStats.LCK} + ${defenderStats.LCK} = ${critDC}`;
+                        critDCStr = `DC ${critThreshold} - ${attackerStats.LCK} + ${defenderStats.LCK} = ${critDC}`;
 }
 
                     if (accuracyNatMax) {
@@ -1480,6 +1479,7 @@ document.getElementById('smitingSoul').checked = false;
 document.getElementById('antiArmour').checked = false;
 document.getElementById('antiArmourMode').value = "Roll";
 document.getElementById('antiArmourSection').style.display = 'none';
+document.getElementById('critThreshold').value = "100";
 document.getElementById('attackerAccRollCount').value = "1";
 document.getElementById('attackerAccRollType').value = "best";
 document.getElementById('attackerFpRollCount').value = "1";
@@ -1558,7 +1558,7 @@ default:
             const mode = document.getElementById('attackMode').value;
 const aswSection = document.getElementById('aswModifierSection');
             const bomberSection = document.getElementById('multiBomberSection');
-            
+
             // Update FP/TRP/ASW labels
             const label = getAttackLabel(mode);
 document.getElementById('attackerFpLabel').textContent = `Number of Rolls- ${label}`;
@@ -1568,12 +1568,21 @@ if (mode === 'ASW') {
 } else {
                 aswSection.style.display = 'none';
 }
-            
+
 if (mode === 'Carrier Shelling') {
                 bomberSection.style.display = 'block';
 } else {
                 bomberSection.style.display = 'none';
 }
+
+            // Update Critical Threshold based on mode
+            let critThreshold = 100;
+            if (mode === 'Torpedo' || mode === 'ASW' || mode === 'Night Attack') {
+                critThreshold = 90;
+            } else if (mode === 'Opening Airstrike' || mode === 'Carrier Shelling') {
+                critThreshold = 95;
+            }
+            document.getElementById('critThreshold').value = critThreshold;
         }
 
         function updateAntiArmour() {
@@ -1743,6 +1752,8 @@ const smitingSoul = document.getElementById('smitingSoul').checked;
 // Get Anti-Armour settings
 const antiArmour = document.getElementById('antiArmour').checked;
 const antiArmourMode = document.getElementById('antiArmourMode').value;
+// Get Critical Threshold
+const critThreshold = parseInt(document.getElementById('critThreshold').value) || 100;
 
             // Build config object
             const config = {
@@ -1757,6 +1768,7 @@ historicalBonus,
 smitingSoul,
 antiArmour,
 antiArmourMode,
+critThreshold,
 attackerDiceValue,
 defenderDiceValue,
 attackerAccBonuses,
